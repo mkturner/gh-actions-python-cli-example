@@ -1,14 +1,16 @@
 """Utilities for discovering block devices with lsblk."""
 
 import json
-import shlex
 import subprocess
 
+LSBLK_COMMAND = ('lsblk', '-J', '-o', 'NAME,SIZE,TYPE,MOUNTPOINT')
+
+
 def run_command(command):
-    """Run a trusted shell command string and return its output."""
-    cmd = shlex.split(command)
-    output = subprocess.check_output(cmd)
-    return output
+    """Run the supported lsblk command and return its output."""
+    if tuple(command) != LSBLK_COMMAND:
+        raise ValueError('Unsupported command')
+    return subprocess.check_output(command)
 
 def run_lsblk(device):
     """
@@ -25,8 +27,7 @@ def run_lsblk(device):
     ]
     }
     """
-    command = 'lsblk -J -o NAME,SIZE,TYPE,MOUNTPOINT'
-    output = run_command(command)
+    output = run_command(LSBLK_COMMAND)
     devices = json.loads(output)['blockdevices']
     for parent in devices:
         if parent['name'] == device:
