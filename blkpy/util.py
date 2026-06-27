@@ -16,9 +16,12 @@ def run_command(command):
     if tuple(command) != LSBLK_COMMAND:
         raise ValueError(f'Only the lsblk JSON command is supported, got: {command}')
     try:
-        return subprocess.check_output(command, timeout=30)
+        return subprocess.check_output(command, stderr=subprocess.STDOUT, timeout=5)
     except subprocess.CalledProcessError as error:
-        raise RuntimeError(f'lsblk command failed: {command}') from error
+        message = error.output.decode('utf-8', errors='replace').strip()
+        raise RuntimeError(
+            f'lsblk command failed with exit code {error.returncode}: {message}'
+        ) from error
 
 
 def run_lsblk(device):
