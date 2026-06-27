@@ -5,7 +5,7 @@ import shlex
 import subprocess
 
 def run_command(command):
-    """Run a shell command and return its output."""
+    """Run a trusted shell command string and return its output."""
     cmd = shlex.split(command)
     output = subprocess.check_output(cmd)
     return output
