@@ -4,6 +4,7 @@ import json
 import subprocess
 
 LSBLK_COMMAND = ('lsblk', '-J', '-o', 'NAME,SIZE,TYPE,MOUNTPOINT')
+LSBLK_TIMEOUT_SECONDS = 5
 
 
 def run_command(command):
@@ -16,7 +17,11 @@ def run_command(command):
     if tuple(command) != LSBLK_COMMAND:
         raise ValueError(f'Only the lsblk JSON command is supported, got: {command}')
     try:
-        return subprocess.check_output(command, stderr=subprocess.STDOUT, timeout=5)
+        return subprocess.check_output(
+            command,
+            stderr=subprocess.STDOUT,
+            timeout=LSBLK_TIMEOUT_SECONDS,
+        )
     except subprocess.CalledProcessError as error:
         message = error.output.decode('utf-8', errors='replace').strip()
         raise RuntimeError(
