@@ -7,10 +7,15 @@ LSBLK_COMMAND = ('lsblk', '-J', '-o', 'NAME,SIZE,TYPE,MOUNTPOINT')
 
 
 def run_command(command):
-    """Run the supported lsblk command and return its output."""
+    """Run the supported lsblk command and return its output.
+
+    :param command: Tuple of command arguments to execute.
+    :return: Command output as bytes.
+    """
     if tuple(command) != LSBLK_COMMAND:
-        raise ValueError('Unsupported command')
+        raise ValueError('Only the lsblk JSON command is supported')
     return subprocess.check_output(command)
+
 
 def run_lsblk(device):
     """
@@ -26,6 +31,9 @@ def run_lsblk(device):
         }
     ]
     }
+
+    :param device: The block device name to look up.
+    :return: The matching device dictionary, or None when not found.
     """
     output = run_command(LSBLK_COMMAND)
     devices = json.loads(output)['blockdevices']
