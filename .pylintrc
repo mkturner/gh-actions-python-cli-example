@@ -1,0 +1,6 @@
+[MAIN]
+ignore-paths=^examples/.*$
+
+[MESSAGES CONTROL]
+disable=
+    import-error

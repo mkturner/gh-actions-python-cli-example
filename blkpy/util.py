@@ -1,12 +1,33 @@
-import subprocess
-import shlex
-import json
+"""Utilities for discovering block devices with lsblk."""
 
-# create a function that runs suprocess and returns the output
+import json
+import subprocess
+
+LSBLK_COMMAND = ('lsblk', '-J', '-o', 'NAME,SIZE,TYPE,MOUNTPOINT')
+LSBLK_TIMEOUT_SECONDS = 10
+
+
 def run_command(command):
-    cmd = shlex.split(command)
-    output = subprocess.check_output(cmd)
-    return output
+    """Run the supported lsblk command and return its output.
+
+    :param command: Tuple of command arguments to execute.
+    :return: Command output as bytes.
+    :raises ValueError: If a command other than the supported lsblk call is requested.
+    """
+    if tuple(command) != LSBLK_COMMAND:
+        raise ValueError(f'Only the lsblk JSON command is supported, got: {command}')
+    try:
+        return subprocess.check_output(
+            command,
+            stderr=subprocess.STDOUT,
+            timeout=LSBLK_TIMEOUT_SECONDS,
+        )
+    except subprocess.CalledProcessError as error:
+        message = error.output.decode('utf-8', errors='replace').strip()
+        raise RuntimeError(
+            f'lsblk command failed with exit code {error.returncode}: {message}'
+        ) from error
+
 
 def run_lsblk(device):
     """
@@ -22,9 +43,11 @@ def run_lsblk(device):
         }
     ]
     }
+
+    :param device: The block device name to look up.
+    :return: The matching device dictionary, or None when not found.
     """
-    command = f'lsblk -J -o NAME,SIZE,TYPE,MOUNTPOINT'
-    output = run_command(command)
+    output = run_command(LSBLK_COMMAND)
     devices = json.loads(output)['blockdevices']
     for parent in devices:
         if parent['name'] == device:
@@ -32,4 +55,4 @@ def run_lsblk(device):
         for child in parent.get('children', []):
             if child['name'] == device:
                 return child
-
+    return None
