@@ -11,9 +11,10 @@ def run_command(command):
 
     :param command: Tuple of command arguments to execute.
     :return: Command output as bytes.
+    :raises ValueError: If a command other than the supported lsblk call is requested.
     """
     if tuple(command) != LSBLK_COMMAND:
-        raise ValueError('Only the lsblk JSON command is supported')
+        raise ValueError(f'Only the lsblk JSON command is supported, got: {command}')
     return subprocess.check_output(command)
 
 
