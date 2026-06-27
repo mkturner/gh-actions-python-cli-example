@@ -4,7 +4,7 @@ import json
 import subprocess
 
 LSBLK_COMMAND = ('lsblk', '-J', '-o', 'NAME,SIZE,TYPE,MOUNTPOINT')
-LSBLK_TIMEOUT_SECONDS = 5
+LSBLK_TIMEOUT_SECONDS = 10
 
 
 def run_command(command):
